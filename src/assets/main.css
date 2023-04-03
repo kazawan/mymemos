@@ -1,0 +1,46 @@
+@import './base.css';
+
+@font-face {
+  font-family: HarmonyOS_Sans_Medium;
+  src: url(./font/HarmonyOS_Sans_Medium.ttf);
+}
+
+#app {
+  max-width: 1280px;
+  margin: 0 auto;
+  /* padding: 1rem; */
+
+  font-weight: normal;
+  font-family:HarmonyOS_Sans_Medium;
+}
+/* 整个滚动条 */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 3px;
+}
+
+/* 滚动条有滑块的轨道部分 */
+::-webkit-scrollbar-track-piece {
+  background-color: transparent;
+  border-radius: 5px;
+}
+
+/* 滚动条滑块(竖向:vertical 横向:horizontal) */
+::-webkit-scrollbar-thumb {
+  cursor: pointer;
+  background-color: #f2f2f2;
+  border-radius: 5px;
+}
+
+/* 滚动条滑块hover */
+::-webkit-scrollbar-thumb:hover {
+  background-color: #999999;
+}
+
+/* 同时有垂直和水平滚动条时交汇的部分 */
+::-webkit-scrollbar-corner {
+  display: block;
+  /* 修复交汇时出现的白块 */
+}
+
+
