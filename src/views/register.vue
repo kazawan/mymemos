@@ -27,7 +27,7 @@
                             </div>
                             <div class="loginfoot">
                                 <p class="no-account" @click="gotologin" >🆔IF U HAVE ACCOUNT ? </p>
-                                <div class="signup">📔Sign up</div>
+                                <div class="signup" @click="reg">📔Sign up</div>
                                 
                             </div>
                         </div>
@@ -42,8 +42,9 @@
 </template>
 
 <script setup>
-import { ref,computed} from 'vue';
+import { ref,computed,getCurrentInstance} from 'vue';
 import { useRouter } from 'vue-router';
+const {proxy} = getCurrentInstance()
 const router =useRouter()
 
 const password = ref('')
@@ -51,6 +52,12 @@ const username = ref('')
 
 const gotologin = () => {
     router.push('/')
+}
+/**
+ * * 注册接口
+ */
+const reg = async () =>{
+    proxy.Axios.post(proxy.ApiUrl + '/register', { 'username': username.value, 'password': password.value }).then((res) => console.log(res.data))
 }
 
 </script >

@@ -11,7 +11,7 @@ import counter from './stores/index.js'
 
 const app = createApp(App)
 app.config.globalProperties.Axios = Axios
-
+app.config.globalProperties.ApiUrl = 'http://192.168.3.123:3000'
 app.use(createPinia())
 
 app.use(counter)
