@@ -41,7 +41,7 @@
                     </div>
                 </k-col>
                 <k-col span="2" xs="2" animation>
-
+                   
 
                 </k-col>
             </k-row>
@@ -53,6 +53,7 @@
 <script setup>
 import { ref, computed, getCurrentInstance, onMounted, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
+
 import { useTokenStore } from '../stores/token';
 import computer from '../components/icons/computer.vue'
 const { proxy } = getCurrentInstance()
@@ -75,7 +76,7 @@ const gotoregister = () => {
 
 
 const getTitle = async () => {
-    console.log('check')
+    // console.log('check')
     msg.value = await proxy.Axios.get('http://192.168.3.123:3000')
         .then((res) => {
 
@@ -94,8 +95,11 @@ const checkServerOn = async () => {
     timer.value = window.setInterval(getTitle, 60 * 1000 * 15)
 }
 
+
+
 onMounted(() => {
     checkServerOn()
+    // authCheck()
 })
 
 onBeforeUnmount(() => {
@@ -107,7 +111,7 @@ const redirect = (data) => {
     console.log(data)
     if (data.code === 200) {
 
-        router.push('/register')
+        router.push('/home')
     } else {
         isalert.value = true
         alertdiv.value = data.msg
@@ -121,17 +125,27 @@ const isalert = ref(false)
 const login = async () => {
     isalert.value = true
     alertdiv.value = 'logining...'
-    await proxy.Axios.post('http://192.168.3.123:3000/login', { 'username': username.value, 'password': password.value })
+    await proxy.Axios.post('http://192.168.3.123:3000/login',
+        { 'username': username.value, 'password': password.value },
+        {
+            headers: {
+                'Content-Type': 'application/json',
+                // 'Authorization': 'Bearer ' + '123'
+            }
+        }
+    )
         .then((res) => {
-
+            // console.log(res.data.token)
+            token.setToken(res.data.token)
+            // console.log('token',token.userToken)
             redirect(res.data)
         })
-        isalert.value = false
-        alertdiv.value = ''
+    isalert.value = false
+    alertdiv.value = ''
 }
 
 const serverOn = computed(() => {
-    console.log(msg.value)
+    // console.log(msg.value)
     if (msg.value === 'server is on') {
         return '#55E6C1'
     } else {
@@ -142,6 +156,7 @@ const serverOn = computed(() => {
 
 
 getTitle()
+
 
 </script >
 
