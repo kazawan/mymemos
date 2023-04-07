@@ -28,7 +28,7 @@
                                 <span class="username">🤪username</span>
                                 <input type="text" v-model="username">
                                 <span class="password">🔐password</span>
-                                <input type="password" v-model="password">
+                                <input type="text" v-model="password">
 
                             </div>
                             <div class="loginfoot">
@@ -56,6 +56,9 @@ import { useRouter } from 'vue-router';
 
 import { useTokenStore } from '../stores/token';
 import computer from '../components/icons/computer.vue'
+import useAxios  from '../hooks/useaxios'
+
+
 const { proxy } = getCurrentInstance()
 
 
@@ -64,7 +67,7 @@ const token = useTokenStore()
 
 const router = useRouter()
 
-const password = ref('123142423')
+const password = ref('00189423')
 const username = ref('kazawan')
 const msg = ref('server is lost')
 const gotoregister = () => {
@@ -96,10 +99,20 @@ const checkServerOn = async () => {
 }
 
 
-
+const test = ()=>{
+    
+    console.log('data')
+}
 onMounted(() => {
     checkServerOn()
+    useAxios.get('http://192.168.3.123:3000/test')
+    
     // authCheck()
+})
+
+onMounted(async()=>{
+    let res = await useAxios.get('http://192.168.3.123:3000/test')
+    console.log(res)
 })
 
 onBeforeUnmount(() => {
@@ -108,13 +121,19 @@ onBeforeUnmount(() => {
 
 
 const redirect = (data) => {
-    console.log(data)
+    // console.log(data)
     if (data.code === 200) {
-
-        router.push('/home')
-    } else {
-        isalert.value = true
         alertdiv.value = data.msg
+        setTimeout(()=>{
+            isalert.value = false
+            router.push('/home')
+        },1000)
+        
+    } else {
+        alertdiv.value = data.msg
+        setTimeout(()=>{
+            isalert.value = false
+        },1000)
     }
 }
 
@@ -135,13 +154,11 @@ const login = async () => {
         }
     )
         .then((res) => {
-            // console.log(res.data.token)
-            token.setToken(res.data.token)
-            // console.log('token',token.userToken)
+            // console.log(res.data.username)
+            token.setToken(res.data.token,res.data.username)
             redirect(res.data)
         })
-    isalert.value = false
-    alertdiv.value = ''
+    
 }
 
 const serverOn = computed(() => {

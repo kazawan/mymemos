@@ -1,4 +1,5 @@
 <template>
+    <div v-show="isalert" class="dialog" @click="isalert = !isalert">{{ alertdiv }}</div>
     <k-row>
         <k-col span="24" xs="24">
             <k-row>
@@ -50,6 +51,9 @@ const router =useRouter()
 const password = ref('')
 const username = ref('')
 
+const alertdiv = ref('null')
+const isalert = ref(false)
+
 const gotologin = () => {
     router.push('/')
 }
@@ -57,12 +61,45 @@ const gotologin = () => {
  * * 注册接口
  */
 const reg = async () =>{
-    proxy.Axios.post(proxy.ApiUrl + '/register', { 'username': username.value, 'password': password.value }).then((res) => console.log(res.data))
+    isalert.value = !isalert.value
+    alertdiv.value = '注册中...'
+    proxy.Axios.post(proxy.ApiUrl + '/register', { 'username': username.value, 'password': password.value }).then((res) => {
+        if(res.data.code === 200 ){
+            
+            alertdiv.value = res.data.msg
+            setTimeout(()=>{
+                isalert.value = !isalert.value
+                router.push('/')
+            },1000)
+            
+            
+        }else{
+            alertdiv.value = res.data.msg
+            setTimeout(()=>{
+                isalert.value = !isalert.value
+                
+            },1000)
+        }
+    })
 }
 
 </script >
 
 <style lang='less' scoped>
+
+.dialog {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: #2C3A4780;
+    z-index: 100;
+    .flexdiv;
+    opacity: .3;
+    font-size: 3rem;
+    color: #000;
+    transition: .4s all ease;
+}
 .flexdiv {
     display: flex;
     flex-direction: row;
@@ -175,7 +212,7 @@ const reg = async () =>{
             text-align: center;
             border-radius: .3rem;
             height: 1.8rem;
-            background-color: #55E6C1;
+            background-color: #FC427B;
             font-size: 1rem;
             line-height: 1.2rem;
             padding: .3rem;

@@ -2,6 +2,16 @@
     <k-row>
         <k-col span="24">
             <k-row>
+                <k-col span="24">
+                    <div style="width:100%"><h2>{{ token.userToken.username }}</h2></div>
+                </k-col>
+                
+            </k-row>
+        </k-col>
+    </k-row>
+    <k-row>
+        <k-col span="24">
+            <k-row>
                 <k-col span="20">
                     <h1>卡泽湾</h1>
                 </k-col>
@@ -17,8 +27,9 @@
 import { onMounted, getCurrentInstance ,onUpdated ,watch} from 'vue';
 import { useTokenStore } from '../stores/token';
 import { useRouter } from 'vue-router';
-import { useAuthCheck } from '../hooks/useAuthCheck'
-const {Check} = useAuthCheck()
+import useAxios  from '../hooks/useaxios';
+// import { useAuthCheck } from '../hooks/useAuthCheck';
+// const Auth = useAuthCheck()
 const { proxy } = getCurrentInstance()
 const router = useRouter()
 
@@ -29,6 +40,10 @@ const token = useTokenStore()
  * * token 检查
  */
 const authCheck = () => {
+    if(token.userToken.token === 'no token'){
+        router.push('/')
+        return 
+    }
     proxy.Axios.post('http://192.168.3.123:3000/isAuth',
         {
             token: token.userToken.token
@@ -41,7 +56,8 @@ const authCheck = () => {
         }
 
     ).then((res) => {
-        if (res.data.code != 200) {
+        // console.log('res', res.data)
+        if (res.data.code != 200  ) {
             router.push('/')
         }
     })
@@ -54,9 +70,9 @@ const moveto = (path)=>{
 authCheck()
 
 
+
 onMounted( () => {
-  
-    
+   
 })
 
 
