@@ -8,10 +8,13 @@
 #app {
   max-width: 1280px;
   margin: 0 auto;
+  /* height: 100%; */
   /* padding: 1rem; */
 
   font-weight: normal;
   font-family:HarmonyOS_Sans_Medium;
+  /* background-color: #999999; */
+  
 }
 /* 整个滚动条 */
 ::-webkit-scrollbar {
