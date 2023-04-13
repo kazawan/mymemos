@@ -5,7 +5,7 @@
             <div  class="icon">🌐</div>
             
         </div>
-        <div v-show="searchVal"  class="tag"> 111</div>
+        <!-- <div v-show="searchVal"  class="tag"> 111</div> -->
     </div>
 </template>
 
@@ -135,7 +135,7 @@ onUpdated(() => {
             border: none;
             outline: none;
             background: transparent;
-            color: #cfcfcf;
+            color: #000;
             font-size: 1.5rem;
             font-weight: 500;
             // letter-spacing: .3rem;
