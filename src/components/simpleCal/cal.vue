@@ -2,8 +2,8 @@
     <div class="container">
         <div class="calsbody">
             <div v-for="day in dayList " class="calitem">
-                <div class="day" ref="days" :year="day.year" :month="day.month" :day="day.day"
-                    :date="`${day.year}-${day.month}-${day.day}`">{{ day.day }} </div>
+                <div class="day" ref="days" :year="day.year" :month="day.month" :day="dayCheck(day.day)"
+                    :date="`${day.year}-${day.month}-${dayCheck(day.day)}`">{{day.day}} </div>
             </div>
         </div>
         <div class="weekday">
@@ -18,20 +18,26 @@
     </div>
     <button @click="prv">prv</button>
     <button @click="next">next</button>
-    {{ testmsg }}
+    {{ testmsg }}  {{ daySelected }}
 </template>
 
 <script setup>
 
 import { onMounted, ref, computed, onUpdated, watch } from 'vue';
 
-const currentDate = ref(new Date())
-const days = ref(null)
-const today = ref(new Date().getDate());
-const Year = ref(new Date().getFullYear());
-const Month = ref(new Date().getMonth() + 1);
-const dayInMonth = ref(new Date(Year.value, Month.value, 0).getDate());
-const dayInNextMonth = ref(new Date(Year.value, Month.value + 1, 0).getDate());
+const currentDate = ref(new Date()) // 当前时间
+const days = ref(null) // 日历元素
+const today = ref(new Date().getDate()); // 当前日期
+const Year = ref(new Date().getFullYear()); // 当前年份
+const Month = ref(new Date().getMonth() + 1); // 当前月份
+const dayInMonth = ref(new Date(Year.value, Month.value, 0).getDate()); // 当前月份天数
+const dayInNextMonth = ref(new Date(Year.value, Month.value + 1, 0).getDate()); // 下个月份天数
+const firstDayinMonth = computed(() => new Date(Year.value, Month.value - 1, 1).getDay()); // 当前月份第一天是星期几
+const daySelected = ref(null) // 选中的日期
+const daySelectreturn = computed(()=>{
+    return daySelected.value
+})
+
 
 const testmsg =  computed(()=>{
     return `${Year.value}-${Month.value}`
@@ -40,20 +46,30 @@ const testmsg =  computed(()=>{
 
 const dayList = computed(() => {
     const arr = [];
-    let limit = 49
-    let offset = 1
+    let limit = 49 + firstDayinMonth.value -1
+    let offset = firstDayinMonth.value
+    let prevMonth = Month.value - 1 < 1 ? 12 : Month.value - 1
+    let dayInPrevMonth = new Date(Year.value, prevMonth, 0).getDate();
     /**
-     * todo 这里有bug 应该先得到第一天是星期几 然后再计算
+     * /todo 这里有bug 应该先得到第一天是星期几 然后再计算
      */
-    for (let i = 1 + offset; i <=
-        dayInMonth.value + dayInNextMonth.value + offset; i++) {
-        if (i > dayInMonth.value) {
-            if (i >= limit + 2) {
+    for (let i = 1 ; i <=
+        dayInMonth.value + dayInNextMonth.value  ; i++) {
+        if(i<= offset){
+            arr.push({
+                day: i - offset + dayInPrevMonth,
+                month: Month.value - 1 < 1 ? 12 : Month.value - 1,
+                year: Month.value - 1 < 1 ? Year.value - 1 : Year.value,
+
+            })
+        }
+        else if (i > dayInMonth.value + offset) {
+            if (i >= limit - offset + 2) {
                 // console.log(i)
                 break
             } else {
                 arr.push({
-                    day: i - dayInMonth.value  - offset,
+                    day: i - dayInMonth.value -offset,
                     month: Month.value + 1 > 12 ? 1 : Month.value + 1,
                     year: Month.value + 1 > 12 ? Year.value + 1 : Year.value,
 
@@ -62,7 +78,7 @@ const dayList = computed(() => {
         }
         else {
             arr.push({
-                day: i - offset,
+                day: i - offset ,
                 month: Month.value,
                 year: Year.value,
 
@@ -71,6 +87,13 @@ const dayList = computed(() => {
     }
     return arr;
 });
+
+//公用方法
+const dayCheck = computed((days) =>{
+    return (days)=>{
+        return days === 'not' ? '' : days
+    }
+})
 
 const dayPassCheck = () => {
     let res = days.value
@@ -97,18 +120,19 @@ const dayPassCheck = () => {
 
 const calsClick = () =>{
     let res = days.value
-    let date
+    
     res.forEach((item, i) => {
         item.addEventListener('click', (e) => {
-            console.log(e.target.getAttribute('date'))
-           return  date = e.target.getAttribute('date')
+            // console.log(e.target.getAttribute('date'))
+            daySelected.value = e.target.getAttribute('date')
+            emit('clickItem',daySelected.value)
         })
     })
-    return date
+   
 }
 
 onMounted(() => {
-    console.log(Year.value, Month.value)
+    console.log(firstDayinMonth.value)
     dayPassCheck()
     calsClick()
 })
@@ -146,10 +170,19 @@ const next = () => {
 
 
 defineExpose({
-    prv,
-    next,
-    calsClick
+    daySelected,
+    
+    
 })
+
+const emit = defineEmits(
+    ["clickItem"]
+)
+
+// const clickItem = (data) => {
+    
+//     emit("clickItem",data)
+// }
 
 </script >
 

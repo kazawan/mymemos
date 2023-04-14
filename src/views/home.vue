@@ -25,7 +25,7 @@
             <k-col span="6" xl="4"  md="6" sm="0" xs="0">
                 <div class="side">
                     <div class="cal">
-                        <simpleCal  ref="cal" /> 
+                        <simpleCal  ref="cal" v-on:click-item="getDate"  /> 
                     </div>
                 </div>
 
@@ -36,7 +36,8 @@
                     <k-row>
                         <k-col span="24">
                             <div class="todolist">
-                                <div class="date">{{ dateSelect }}</div>
+                                <div class="date">{{ getDay }} </div>
+                                <div class="date">{{ getTodo(getDay) }} </div>
                             </div>
                         </k-col>
                     </k-row>
@@ -49,14 +50,22 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, getCurrentInstance, ref } from 'vue';
+import { onMounted, onUnmounted, getCurrentInstance, ref, onUpdated } from 'vue';
 import { useTokenStore } from '../stores/token';
+import {useTodoStore} from '../stores/todo'
 import { useRouter } from 'vue-router';
 import searchBar from '../components/searchBar/searchBar.vue'
 import simpleCal from '../components/simpleCal/cal.vue'
+import { computed } from '@vue/reactivity';
 
 const { proxy } = getCurrentInstance()
 const router = useRouter()
+
+
+
+const todoList = useTodoStore()
+
+
 /**
  * * token
  */
@@ -131,7 +140,45 @@ const logout = () => {
  * * 日历
  */
 const cal = ref(null)
-const dateSelect = ref('none')
+const day =ref('')
+const getDay = computed(()=>{
+    
+    return day.value 
+})
+
+const getDate = (data) =>{
+    day.value = data
+}
+
+const getTodo = computed(() =>{
+    return function(date){
+        let res
+        Object.keys(todoList.usetodoList).forEach((item,i)=>{
+            console.log('====>',todoList.usetodoList[i])
+            if(item === date){
+                res = todoList.usetodoList[i]
+                console.log(res)
+            }
+        })
+        return res
+    }
+   
+    
+    
+})
+
+onMounted(() =>{
+    console.log(cal.value.daySelected)
+})
+
+onUpdated(()=>{
+    
+})
+// const dateSelect =(data)=>{
+//     console.log(data)
+//     day.value = data
+// }
+
 </script >
 
 <style lang='less' scoped>
@@ -162,7 +209,7 @@ const dateSelect = ref('none')
 
 .header {
     width: 100%;
-    height: 30px;
+    height: 60px;
     // background: #f7f5f4;
     display: flex;
     flex-direction: row;
@@ -206,7 +253,7 @@ const dateSelect = ref('none')
             font-size: 1rem;
             font-weight: 300;
             color: #000;
-            letter-spacing: .3rem;
+            letter-spacing: .1rem;
             line-height: 2rem;
             user-select: none
         }
