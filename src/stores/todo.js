@@ -1,33 +1,40 @@
-import { ref,reactive, computed,onBeforeUnmount } from 'vue'
+import { ref, reactive, computed, onBeforeUnmount } from 'vue'
 import { defineStore } from 'pinia'
 
 
 export const useTodoStore = defineStore('todoStore', () => {
-    const usetodoList = ref({
-        "2023-4-13":{
-            todo:[
-                {
-                    id: 1,
-                    content: '调音',
-                    timestart: '19:00',
-                    workzone: '希尔顿酒店',
-                    tags: '调音',
-                    payment: '1000元',
-                    color: '#EAB543'
-                },
-            ]
+    const usetodoList = ref({})
+
+    const getTodo = computed(() => {
+        return (data) => {
+            if (!data) { return 'no todo' }
+            else if (!usetodoList.value[data]) { return 'no todo' }
+            else { return usetodoList.value[data] }
+
         }
     })
-
-    const getTodo = () =>{
-        
-        return usetodoList.value
-        
+    /**
+     * 
+     * @param {用户名} username 
+     */
+    const saveTodo = (username) => {
+        localStorage.setItem(username, JSON.stringify(usetodoList.value))
     }
 
+    const getlocalTodo = (username) => {
+        console.log('getlocalTodo')
+        if (localStorage.getItem(username)) {
+            usetodoList.value = JSON.parse(localStorage.getItem(username))
+        }else{
+            usetodoList.value = {}
+        }
+    }
+
+    
     return {
         usetodoList,
-        getTodo
-
+        getTodo,
+        saveTodo,
+        getlocalTodo,
     }
 })

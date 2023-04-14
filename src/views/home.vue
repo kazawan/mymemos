@@ -33,11 +33,19 @@
             </k-col>
             <k-col span="18"  xl="20" md="18" sm="24"  xs="24">
                 <div class="main">
+                    <button @click="todoList.saveTodo(token.userToken.username)">save</button>
                     <k-row>
                         <k-col span="24">
                             <div class="todolist">
                                 <div class="date">{{ getDay }} </div>
-                                <div class="date">{{ getTodo(getDay) }} </div>
+                                <!-- <div class="date">{{ todoList.getTodo(getDay).todo }} </div> -->
+                                <div v-show="todoList.getTodo(getDay) === 'no todo'" >{{todoList.getTodo(getDay)}}</div>
+                                <div class="date" v-for="(todo,index) in todoList.getTodo(getDay).todo">
+                                    
+                                    <div>{{ todo.id }}</div>
+                                    <div>{{ todo.content }}</div>
+                                    <div>{{ todo.tags }}</div>
+                                </div>
                             </div>
                         </k-col>
                     </k-row>
@@ -122,9 +130,13 @@ const keyCheck = () => {
     })
 }
 
-onMounted(keyCheck)
+onMounted(()=>{
+    keyCheck
+    todoList.getlocalTodo(token.userToken.username)
+})
 onUnmounted(() => {
     document.removeEventListener('keydown', keyCheck)
+    
 })
 
 /**
@@ -244,10 +256,10 @@ onUpdated(()=>{
     color: #000;
     .todolist{
         width: 100%;
-        height: 100%;
+        height: 100vh;
         .date{
             width: 100%;
-            height: 30px;
+            // height: 30px;
             // background: #f7f5f4;
             padding: 0 10px;
             font-size: 1rem;
