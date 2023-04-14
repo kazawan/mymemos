@@ -3,17 +3,28 @@
         <div class="calsbody">
             <div v-for="day in dayList " class="calitem">
                 <div class="day" ref="days" :year="day.year" :month="day.month" :day="day.day"
-                    :date="`${day.year}-${day.month}-${day.day}`"> {{ day.day }} </div>
+                    :date="`${day.year}-${day.month}-${day.day}`">{{ day.day }} </div>
             </div>
+        </div>
+        <div class="weekday">
+            <div class="weekdayitem">Sun</div>
+            <div class="weekdayitem">Mon</div>
+            <div class="weekdayitem">Tue</div>
+            <div class="weekdayitem">Wed</div>
+            <div class="weekdayitem">Thu</div>
+            <div class="weekdayitem">Fri</div>
+            <div class="weekdayitem">Sat</div>
         </div>
     </div>
     <button @click="prv">prv</button>
     <button @click="next">next</button>
+    {{ testmsg }}
 </template>
 
 <script setup>
 
 import { onMounted, ref, computed, onUpdated, watch } from 'vue';
+
 const currentDate = ref(new Date())
 const days = ref(null)
 const today = ref(new Date().getDate());
@@ -22,21 +33,27 @@ const Month = ref(new Date().getMonth() + 1);
 const dayInMonth = ref(new Date(Year.value, Month.value, 0).getDate());
 const dayInNextMonth = ref(new Date(Year.value, Month.value + 1, 0).getDate());
 
-const dayArr = ref([])
+const testmsg =  computed(()=>{
+    return `${Year.value}-${Month.value}`
+}) 
+
 
 const dayList = computed(() => {
     const arr = [];
     let limit = 49
-
-    for (let i = 1; i <=
-        dayInMonth.value + dayInNextMonth.value; i++) {
+    let offset = 1
+    /**
+     * todo 这里有bug 应该先得到第一天是星期几 然后再计算
+     */
+    for (let i = 1 + offset; i <=
+        dayInMonth.value + dayInNextMonth.value + offset; i++) {
         if (i > dayInMonth.value) {
-            if (i >= limit + 1) {
+            if (i >= limit + 2) {
                 // console.log(i)
                 break
             } else {
                 arr.push({
-                    day: i - dayInMonth.value,
+                    day: i - dayInMonth.value  - offset,
                     month: Month.value + 1 > 12 ? 1 : Month.value + 1,
                     year: Month.value + 1 > 12 ? Year.value + 1 : Year.value,
 
@@ -45,7 +62,7 @@ const dayList = computed(() => {
         }
         else {
             arr.push({
-                day: i,
+                day: i - offset,
                 month: Month.value,
                 year: Year.value,
 
@@ -66,11 +83,11 @@ const dayPassCheck = () => {
         let y = Number(item.getAttribute('year'))
         // console.log(y, m, d)
         if (y < Number(thisYear)) {
-            item.style.opacity = '0.5'
+            item.style.opacity = '0.3'
         } else if (y === Number(thisYear) && m < Number(thisMonth)) {
-            item.style.opacity = '0.5'
+            item.style.opacity = '0.3'
         } else if (y === Number(thisYear) && m === Number(thisMonth) && d < Number(thisDay)) {
-            item.style.opacity = '0.5'
+            item.style.opacity = '0.3'
         }
         else{
             item.style.opacity = '1'
@@ -78,16 +95,31 @@ const dayPassCheck = () => {
     })
 }
 
+const calsClick = () =>{
+    let res = days.value
+    let date
+    res.forEach((item, i) => {
+        item.addEventListener('click', (e) => {
+            console.log(e.target.getAttribute('date'))
+           return  date = e.target.getAttribute('date')
+        })
+    })
+    return date
+}
+
 onMounted(() => {
     console.log(Year.value, Month.value)
     dayPassCheck()
+    calsClick()
 })
 watch(Month, (val, oldVal) => {
     // console.lo/g(val, oldVal)
     dayPassCheck()
+    // calsClick()
 })
 onUpdated(() => {
     dayPassCheck()
+    // calsClick()
 })
 
 const prv = () => {
@@ -98,7 +130,7 @@ const prv = () => {
     }
     dayInMonth.value = new Date(Year.value, Month.value, 0).getDate();
     dayInNextMonth.value = new Date(Year.value, Month.value + 1, 0).getDate();
-    console.log(Year.value, Month.value)
+    // console.log(Year.value, Month.value)
 }
 
 const next = () => {
@@ -109,8 +141,15 @@ const next = () => {
     }
     dayInMonth.value = new Date(Year.value, Month.value, 0).getDate();
     dayInNextMonth.value = new Date(Year.value, Month.value + 1, 0).getDate();
-    console.log(Year.value, Month.value)
+    // console.log(Year.value, Month.value)
 }
+
+
+defineExpose({
+    prv,
+    next,
+    calsClick
+})
 
 </script >
 
@@ -119,10 +158,33 @@ const next = () => {
     width: 100%;
     height: 100%;
     color: #000;
+    display: flex;
     // background-color: #ccc;
+    .weekday{
+        width:10%;
+        height:100%;
+        display: flex;
+        flex-direction: column;
+        flex-wrap: nowrap;
+        .weekdayitem{
+            width:100%;
+            height:calc(100%/7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: .5rem;
+            &:nth-child(1){
+                color:#29a24d;
+            }
+            &:nth-child(7){
+                color:#d39e2c;
+            }
+            // background-color: #ccc;
+        }
+    }
 
     .calsbody {
-        width: 100%;
+        width: 90%;
         height: 100%;
         display: flex;
         flex-direction: column;
@@ -130,10 +192,10 @@ const next = () => {
         justify-content: flex-start;
 
         .calitem {
-            width: calc(100%/7);
+            width: calc(100%/9);
             height: calc(100%/7);
-            background-color: #fff;
-            padding: 0 1px;
+            // background-color: #f7f5f4;
+            // padding: 0 ;
 
             // border: 1px solid #000;
             .day {
@@ -147,6 +209,8 @@ const next = () => {
                 justify-content: center;
                 align-items: center;
                 background-color: #ccc;
+                cursor: pointer;
+                
             }
         }
     }

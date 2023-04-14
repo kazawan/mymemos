@@ -13,26 +13,34 @@
             </k-col>
             <k-col span="16">
 
-                <div style="width: 100%;background-color:#191919;height: 100%;">
-                    <div style="color: aliceblue;cursor: pointer;line-height: 1.8rem;" @click="search.show"> 呼出人工智障</div>
+                <div style="width: 100%;height: 100%;color:#000">
+                    <div style="color: #000;cursor: pointer;line-height: 1.8rem;" @click="search.show"> 呼出人工智障</div>
                 </div>
             </k-col>
             <k-col span="2">
                 <div class="logout" @click="logout">登出</div>
             </k-col>
         </k-row>
-        <k-row wrap="wrap">
-            <k-col span="4"  md="6" sm="0" xs="0">
+        <k-row wrap="wrap"  gutter="10">
+            <k-col span="6" xl="4"  md="6" sm="0" xs="0">
                 <div class="side">
                     <div class="cal">
-                        <simpleCal /> 
+                        <simpleCal  ref="cal" /> 
                     </div>
                 </div>
 
 
             </k-col>
-            <k-col span="20" md="18" sm="24"  xs="24">
-                <div class="main">mainaaaaa</div>
+            <k-col span="18"  xl="20" md="18" sm="24"  xs="24">
+                <div class="main">
+                    <k-row>
+                        <k-col span="24">
+                            <div class="todolist">
+                                <div class="date">{{ dateSelect }}</div>
+                            </div>
+                        </k-col>
+                    </k-row>
+                </div>
 
 
             </k-col>
@@ -46,8 +54,7 @@ import { useTokenStore } from '../stores/token';
 import { useRouter } from 'vue-router';
 import searchBar from '../components/searchBar/searchBar.vue'
 import simpleCal from '../components/simpleCal/cal.vue'
-// import { useAuthCheck } from '../hooks/useAuthCheck';
-// const Auth = useAuthCheck()
+
 const { proxy } = getCurrentInstance()
 const router = useRouter()
 /**
@@ -111,11 +118,6 @@ onUnmounted(() => {
     document.removeEventListener('keydown', keyCheck)
 })
 
-
-
-
-
-
 /**
  * * 登出
  */
@@ -123,17 +125,24 @@ const logout = () => {
     token.logout()
     authCheck()
 }
+
+
+/**
+ * * 日历
+ */
+const cal = ref(null)
+const dateSelect = ref('none')
 </script >
 
 <style lang='less' scoped>
 .t {
     width: 100%;
     height: 30px;
-    background: #191919;
+    // background: #f7f5f4;
     padding: 0 10px;
     font-size: 1rem;
     font-weight: 600;
-    color: #cfcfcf;
+    color: #000;
     letter-spacing: .3rem;
     line-height: 2rem;
     user-select: none
@@ -144,7 +153,7 @@ const logout = () => {
     width: 100%;
     max-width: 1280px;
     height: 30px;
-    background-color: #191919;
+    // background-color: #f7f5f4;
     position: fixed;
     transform: translateX(-50%);
     top: 0;
@@ -154,7 +163,7 @@ const logout = () => {
 .header {
     width: 100%;
     height: 30px;
-    background: #cccccc50;
+    // background: #f7f5f4;
     display: flex;
     flex-direction: row;
 
@@ -185,20 +194,36 @@ const logout = () => {
 .main {
     width: 100%;
     height: 100vh;
-    // background-color: #52ac74;
-    color: #fff;
-    background-color: #585858;
+    color: #000;
+    .todolist{
+        width: 100%;
+        height: 100%;
+        .date{
+            width: 100%;
+            height: 30px;
+            // background: #f7f5f4;
+            padding: 0 10px;
+            font-size: 1rem;
+            font-weight: 300;
+            color: #000;
+            letter-spacing: .3rem;
+            line-height: 2rem;
+            user-select: none
+        }
+    }
+   
 }
 
 
 .side {
     width: 100%;
     padding: .3rem .3rem .3rem .3rem;
-    
+    // background: #f7f5f4;
 
     .cal {
         width: 100%;
-        height: 200px;
+        height: 150px;
+        // background: #f7f5f4;
         // background-color: #191919;
         // padding: 10px;
     }
