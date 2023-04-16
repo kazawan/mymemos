@@ -19,5 +19,7 @@ onMounted(()=>{
 </script >
 
 <style lang='less' scoped>
-
+.h{
+  width: 100%;
+}
 </style>
