@@ -21,30 +21,42 @@
                 <div class="logout" @click="logout">登出</div>
             </k-col>
         </k-row>
-        <k-row wrap="wrap"  gutter="10">
-            <k-col span="6" xl="4"  md="6" sm="0" xs="0">
+        <k-row wrap="wrap" gutter="10">
+            <k-col span="6" xl="4" md="6" sm="0" xs="0">
                 <div class="side">
                     <div class="cal">
-                        <simpleCal  ref="cal" v-on:click-item="getDate"  /> 
+                        <simpleCal ref="cal" v-on:click-item="getDate" :todos="gettodolist" />
                     </div>
                 </div>
 
 
             </k-col>
-            <k-col span="18"  xl="20" md="18" sm="24"  xs="24">
+            <k-col span="18" xl="20" md="18" sm="24" xs="24">
                 <div class="main">
                     <button @click="todoList.saveTodo(token.userToken.username)">save</button>
+                    <button>add todo</button>
                     <k-row>
                         <k-col span="24">
                             <div class="todolist">
-                                <div class="date">{{ getDay }} </div>
+                                <div class="dateTop">{{ getDay }} </div>
                                 <!-- <div class="date">{{ todoList.getTodo(getDay).todo }} </div> -->
-                                <div v-show="todoList.getTodo(getDay) === 'no todo'" >{{todoList.getTodo(getDay)}}</div>
-                                <div class="date" v-for="(todo,index) in todoList.getTodo(getDay).todo">
-                                    
-                                    <div>{{ todo.id }}</div>
-                                    <div>{{ todo.content }}</div>
-                                    <div>{{ todo.tags }}</div>
+                                <div v-show="todoList.getTodo(getDay) === 'no todo'">{{ todoList.getTodo(getDay) }}</div>
+                                <div class="date" v-for="(todo, index) in todoList.getTodo(getDay).todo">
+
+                                    <div class="todobox">
+                                        <div class="todotitlebox">⏰时间</div>
+                                        <div class="todotitleboxcontaian">
+                                            {{ todo.id }}
+                                        </div>
+                                    </div>
+                                    <div class="todobox">
+                                        <div class="todotitlebox">📝待办</div>
+                                        <div class="todotitleboxcontaian">
+                                            {{ todo.content }}
+                                        </div>
+
+                                    </div>
+                                    <div class="todotags">{{ todo.tags }}</div>
                                 </div>
                             </div>
                         </k-col>
@@ -60,7 +72,7 @@
 <script setup>
 import { onMounted, onUnmounted, getCurrentInstance, ref, onUpdated } from 'vue';
 import { useTokenStore } from '../stores/token';
-import {useTodoStore} from '../stores/todo'
+import { useTodoStore } from '../stores/todo'
 import { useRouter } from 'vue-router';
 import searchBar from '../components/searchBar/searchBar.vue'
 import simpleCal from '../components/simpleCal/cal.vue'
@@ -69,10 +81,20 @@ import { computed } from '@vue/reactivity';
 const { proxy } = getCurrentInstance()
 const router = useRouter()
 
-
-
+/**
+ * * 待办事项
+ */
 const todoList = useTodoStore()
-
+const gettodolist = computed(() => {
+    // console.log(todoList.usetodoList)
+    if (todoList.usetodoList === undefined  ) {
+        console.log('null')
+        return null
+    }else{
+        return todoList.usetodoList
+    }
+    
+})
 
 /**
  * * token
@@ -120,7 +142,8 @@ const keyCheck = () => {
     document.addEventListener('keydown', (e) => {
         // console.log(e.code)
         if (e.code === 'KeyI' && e.ctrlKey === true) {
-            // console.log('d')
+
+            console.log('d')
             search.value.show()
         }
         else if (e.code === 'Escape') {
@@ -130,13 +153,13 @@ const keyCheck = () => {
     })
 }
 
-onMounted(()=>{
-    keyCheck
+onMounted(() => {
+    keyCheck()
     todoList.getlocalTodo(token.userToken.username)
 })
 onUnmounted(() => {
     document.removeEventListener('keydown', keyCheck)
-    
+
 })
 
 /**
@@ -152,39 +175,40 @@ const logout = () => {
  * * 日历
  */
 const cal = ref(null)
-const day =ref('')
-const getDay = computed(()=>{
-    
-    return day.value 
+const currentDate = new Date()
+const day = ref(currentDate.getFullYear() + '-' + (currentDate.getMonth() + 1) + '-' + currentDate.getDate())
+const getDay = computed(() => {
+
+    return day.value
 })
 
-const getDate = (data) =>{
+const getDate = (data) => {
     day.value = data
 }
 
-const getTodo = computed(() =>{
-    return function(date){
+const getTodo = computed(() => {
+    return function (date) {
         let res
-        Object.keys(todoList.usetodoList).forEach((item,i)=>{
-            console.log('====>',todoList.usetodoList[i])
-            if(item === date){
+        Object.keys(todoList.usetodoList).forEach((item, i) => {
+            console.log('====>', todoList.usetodoList[i])
+            if (item === date) {
                 res = todoList.usetodoList[i]
                 console.log(res)
             }
         })
         return res
     }
-   
-    
-    
+
+
+
 })
 
-onMounted(() =>{
-    console.log(cal.value.daySelected)
+onMounted(() => {
+    // console.log(cal.value.daySelected)
 })
 
-onUpdated(()=>{
-    
+onUpdated(() => {
+
 })
 // const dateSelect =(data)=>{
 //     console.log(data)
@@ -254,10 +278,26 @@ onUpdated(()=>{
     width: 100%;
     height: 100vh;
     color: #000;
-    .todolist{
+
+    .todolist {
         width: 100%;
         height: 100vh;
-        .date{
+
+        .dateTop {
+            width: 100%;
+            height: 30px;
+            // background: #f7f5f4;
+            padding: 0 10px;
+            font-size: 1rem;
+            font-weight: 400;
+            color: #000;
+            // letter-spacing: .3rem;
+            line-height: 2rem;
+            user-select: none;
+        }
+
+        .date {
+            position: relative;
             width: 100%;
             // height: 30px;
             // background: #f7f5f4;
@@ -266,12 +306,51 @@ onUpdated(()=>{
             font-weight: 300;
             color: #000;
             letter-spacing: .1rem;
-            line-height: 2rem;
-            user-select: none
+            line-height: 1.5rem;
+            user-select: none;
+            border: 1px solid #ccc;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            box-shadow: 3px 3px 5px #ccc;
+            padding: 10px;
+
+            .todobox {
+                display: flex;
+                flex-direction: row;
+                flex-wrap: nowrap;
+
+                .todotitlebox {
+                    background-color: #ccc;
+                    min-width: 5rem;
+                    border-radius: 3px;
+                    height: 1.4rem;
+                    line-height: 1.4rem;
+                    text-align: center;
+                    margin-right: 10px;
+
+                }
+
+            }
+
+            .todotags {
+                background: #ccc;
+                width: 3rem;
+                text-align: center;
+                font-size: .5rem;
+                height: 1rem;
+                line-height: 1rem;
+                border-radius: 3px;
+                position: absolute;
+                top: 10px;
+                right: 10px;
+            }
+
         }
     }
-   
+
 }
+
+
 
 
 .side {

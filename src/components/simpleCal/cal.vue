@@ -3,7 +3,7 @@
         <div class="calsbody">
             <div v-for="day in dayList " class="calitem">
                 <div class="day" ref="days" :year="day.year" :month="day.month" :day="dayCheck(day.day)"
-                    :date="`${day.year}-${day.month}-${dayCheck(day.day)}`">{{day.day}} </div>
+                    :date="`${day.year}-${day.month}-${dayCheck(day.day)}`"> </div>
             </div>
         </div>
         <div class="weekday">
@@ -24,6 +24,10 @@
 <script setup>
 
 import { onMounted, ref, computed, onUpdated, watch } from 'vue';
+
+const props = defineProps({
+    todos:Object,
+})
 
 const currentDate = ref(new Date()) // 当前时间
 const days = ref(null) // 日历元素
@@ -131,18 +135,43 @@ const calsClick = () =>{
    
 }
 
+const todoMonitor = ()=>{
+    console.log(props.todos.length,'props.todos')
+    let res = days.value
+    if(!props.todos){
+        console.log('none')
+    }else{
+        // console.log(props.todos)
+        let temp = props.todos
+        res.forEach(item=>{
+            let date = item.getAttribute('date')
+            if(temp[date]){
+                item.style.background = '#55E6C1'
+            }else{
+                item.style.background = '#ccc'
+            }
+        })
+    }
+  
+}
+
 onMounted(() => {
-    console.log(firstDayinMonth.value)
+    // console.log(firstDayinMonth.value)
     dayPassCheck()
     calsClick()
+    todoMonitor()
+    
+    
 })
 watch(Month, (val, oldVal) => {
     // console.lo/g(val, oldVal)
     dayPassCheck()
+    todoMonitor()
     // calsClick()
 })
 onUpdated(() => {
     dayPassCheck()
+    todoMonitor()
     // calsClick()
 })
 
@@ -241,7 +270,7 @@ const emit = defineEmits(
                 display: flex;
                 justify-content: center;
                 align-items: center;
-                background-color: #ccc;
+                // background-color: #ccc;
                 cursor: pointer;
                 
             }
