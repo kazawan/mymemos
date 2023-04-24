@@ -136,7 +136,7 @@ const calsClick = () =>{
 }
 
 const todoMonitor = ()=>{
-    console.log(props.todos.length,'props.todos')
+    // console.log(props.todos.length,'props.todos')
     let res = days.value
     if(!props.todos){
         console.log('none')
@@ -156,7 +156,7 @@ const todoMonitor = ()=>{
 }
 
 onMounted(() => {
-    // console.log(firstDayinMonth.value)
+    // console.log(props.todos)
     dayPassCheck()
     calsClick()
     todoMonitor()

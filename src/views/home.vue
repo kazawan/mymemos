@@ -6,7 +6,7 @@
 
                 <div class="header">
                     <div class="homeTitle">
-                        🍍 卡泽湾
+                        🍍 卡泽湾 {{ token.userToken.username }}
                     </div>
 
                 </div>
@@ -14,7 +14,7 @@
             <k-col span="16">
 
                 <div style="width: 100%;height: 100%;color:#000">
-                    <div style="color: #000;cursor: pointer;line-height: 1.8rem;" @click="search.show"> 呼出人工智障</div>
+                    <div style="color: #000;cursor: pointer;line-height: 1.8rem;" @click="search.show"> 呼出人工智障 </div>
                 </div>
             </k-col>
             <k-col span="2">
@@ -25,7 +25,7 @@
             <k-col span="6" xl="4" md="6" sm="0" xs="0">
                 <div class="side">
                     <div class="cal">
-                        <simpleCal ref="cal" v-on:click-item="getDate" :todos="gettodolist" />
+                        <simpleCal ref="cal" v-on:click-item="getDate" :todos="updatetodo" />
                     </div>
                 </div>
 
@@ -34,14 +34,18 @@
             <k-col span="18" xl="20" md="18" sm="24" xs="24">
                 <div class="main">
                     <button @click="todoList.saveTodo(token.userToken.username)">save</button>
-                    <button>add todo</button>
+                    <button @click="addtodo">add todo</button>
+                    <div>
+                        <input class="inputer" type="text" v-model="content">
+                        <input class="inputer" type="text" v-model="tags">
+                    </div>
                     <k-row>
                         <k-col span="24">
                             <div class="todolist">
                                 <div class="dateTop">{{ getDay }} </div>
                                 <!-- <div class="date">{{ todoList.getTodo(getDay).todo }} </div> -->
-                                <div v-show="todoList.getTodo(getDay) === 'no todo'">{{ todoList.getTodo(getDay) }}</div>
-                                <div class="date" v-for="(todo, index) in todoList.getTodo(getDay).todo">
+                                <div v-show="todoSelect(getDay) === 'no todo'">{{ todoSelect(getDay) }}</div>
+                                <div class="date" v-for="(todo, index) in todoSelect(getDay).todo">
 
                                     <div class="todobox">
                                         <div class="todotitlebox">⏰时间</div>
@@ -85,16 +89,79 @@ const router = useRouter()
  * * 待办事项
  */
 const todoList = useTodoStore()
-const gettodolist = computed(() => {
-    // console.log(todoList.usetodoList)
-    if (todoList.usetodoList === undefined  ) {
-        console.log('null')
-        return null
-    }else{
-        return todoList.usetodoList
-    }
-    
+
+
+const todo = ref({})
+const updatetodo = computed(() => {
+    return todo.value
 })
+
+/**
+ *  * 获取todo
+ *  * 获取todolist http://192.168.3.123:3000/todo_user body {username:'username'}
+ * 
+ */
+const usertodourl = 'http://192.168.3.123:3000/todo_user'
+const user_todo = (username) => {
+    proxy.Axios.post(usertodourl, { "username": username })
+        .then((res) => {
+            // console.log(res.data.data.json["2023-4-19"])
+            let temp = JSON.parse(res.data.data.json)
+            // console.log(temp["2023-4-19"].todo)
+            todo.value = temp
+            // todoList.setTodoList(res.data)
+        })
+}
+// 获取本日 todo
+const todoSelect = computed((data) => {
+    // console.log(data)
+    return (data) => {
+        if (!data) { return 'no todo' }
+        else if (!todo.value[data]) { return 'no todo' }
+        else { return todo.value[data] }
+    }
+
+})
+
+/**
+ * * 添加todo http://192.168.3.123:3000/addtodo body {username:"username",json:"json"}
+ */
+const addtodourl = 'http://192.168.3.123:3000/addtodo'
+const content = ref('')
+const tags = ref('')
+const newtodo = () => {
+    let temp = todo.value[getDay.value]
+    if (temp) {
+        temp.todo.push({
+            "id": "2021-4-19 12:00",
+            "content": content.value,
+            "tags": tags.value
+        })
+    } else {
+        todo.value[getDay.value] = {
+            "todo": [
+                {
+                    "id": "2021-4-19 12:00",
+                    "content": content.value,
+                    "tags": tags.value
+                }
+            ]
+        }
+    }
+    console.log(todo.value)
+}
+const addtodo = async (username, json) => {
+    newtodo()
+    await proxy.Axios.post(addtodourl, { "username": token.userToken.username, "json": todo.value })
+        .then((res) => {
+            console.log(res.data)
+        })
+    content.value = ''
+    tags.value = ''
+    await user_todo(token.userToken.username)
+}
+
+
 
 /**
  * * token
@@ -153,9 +220,14 @@ const keyCheck = () => {
     })
 }
 
+
+
+
 onMounted(() => {
     keyCheck()
-    todoList.getlocalTodo(token.userToken.username)
+    // todoList.getlocalTodo(token.userToken.username)
+    user_todo(token.userToken.username)
+    // todoSelect(getDay)
 })
 onUnmounted(() => {
     document.removeEventListener('keydown', keyCheck)
@@ -182,38 +254,20 @@ const getDay = computed(() => {
     return day.value
 })
 
+
+/**
+ *  * 返回日历中选择的日期
+ */
 const getDate = (data) => {
     day.value = data
 }
 
-const getTodo = computed(() => {
-    return function (date) {
-        let res
-        Object.keys(todoList.usetodoList).forEach((item, i) => {
-            console.log('====>', todoList.usetodoList[i])
-            if (item === date) {
-                res = todoList.usetodoList[i]
-                console.log(res)
-            }
-        })
-        return res
-    }
 
 
 
-})
 
-onMounted(() => {
-    // console.log(cal.value.daySelected)
-})
 
-onUpdated(() => {
 
-})
-// const dateSelect =(data)=>{
-//     console.log(data)
-//     day.value = data
-// }
 
 </script >
 
@@ -365,5 +419,15 @@ onUpdated(() => {
         // background-color: #191919;
         // padding: 10px;
     }
+}
+
+.inputer {
+    display: block;
+    width: 50%;
+    height: 30px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    border-radius: 5px;
+
 }
 </style>
