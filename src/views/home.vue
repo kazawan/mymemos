@@ -87,10 +87,10 @@ const router = useRouter()
 
 /**
  * * 待办事项
+ * 
+ * todo 增加删除todo
  */
-const todoList = useTodoStore()
-
-
+// const todoList = useTodoStore()
 const todo = ref({})
 const updatetodo = computed(() => {
     return todo.value
